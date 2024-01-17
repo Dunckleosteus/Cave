@@ -67,22 +67,20 @@ begin
 		end
 	end
 	# multiple dispatch
-	function closest(points::Matrix{Float32}, 
+	function closest(
+		point, 
 		spline::LinearAlgebra.Adjoint{Float64, Matrix{Float64}},
 	)
-		
-		closest = [] # list of closest points
-		for point in eachrow(points)
-			# 1D f64 list of distances
-			distances = [σ(point,spl) for spl in eachrow(spline)]
-			# 1D integer list of indexes
-			dist_id = sortperm(distances)
-			# we use dist id to create a new list sorted list distance point
-			ordered = spline[dist_id, :]
-			# we keep the first point
-			return ordered[1, :]
-		end
-	end
+		# 1D f64 list of distances
+		distances = [σ(point,spl) for spl in eachrow(spline)]
+		# 1D integer list of indexes
+		dist_id = sortperm(distances)
+		# we use dist id to create a new list sorted list distance point
+		ordered = spline[dist_id, :]
+		# we keep the first point
+		return ordered[1, :]
+end
+	
 end
 
 # ╔═╡ 2345ae2f-aac8-4783-af52-0fe3d3372191
@@ -165,13 +163,19 @@ md"""
 |Rotate axis 1| $(@bind α2 Slider(1:1:360, default=1))|
 |Rotate axis 2| $(@bind β2 Slider(1:1:360, default=1))|
 |Marker size| $(@bind sizemarker Slider(1:1:5, default=1))|
+
+$(@bind path Select(
+	["/home/throgg/Documents/Lasalle/cavernes/caverne3.ply" => "cave 1", 
+	"/home/throgg/Documents/Lasalle/cavernes/caverne2.ply" => "cave 2",
+	"/home/throgg/Documents/Lasalle/cavernes/caverne4.ply" => "cave 3"
+]))
 """
 
 # ╔═╡ 5c39bc20-715e-41bf-a7c6-d66774fd92b3
 begin 
 	# TODO: allow the user to choose a filepath
 	# open ply files
-	path = "/home/throgg/Documents/Lasalle/cavernes/caverne3.ply"
+	# path = "/home/throgg/Documents/Lasalle/cavernes/caverne3.ply"
 	ply = load_ply(path)
 	# hcat is really cool
 	ply_points = hcat(ply["vertex"]["x"], ply["vertex"]["y"], ply["vertex"]["z"])
@@ -305,29 +309,68 @@ Where:
 Because the centroids should be in the center of the tunnel we can affirm that:
 - if z < z' then the point belongs to the floor of the gallery
 - if z > z' then the point belongs to the roof of the gallery
+
+---
+
+|Parameter|Slider|
+|---|----|
+|Rotate axis 1| $(@bind α4 Slider(1:1:360, default=1))|
+|Rotate axis 2| $(@bind β4 Slider(1:1:360, default=1))|
+|Display roof ? | $(@bind disproof4 CheckBox(default=true))|
+|Display floor ? | $(@bind dispfloor4 CheckBox(default=true))|
 """
 
-# ╔═╡ 428419ce-8b42-4e77-bf94-6a843b04f594
+# ╔═╡ 3d499a7c-f56e-4a97-9b8a-bf3718dfa50d
 function classify_points(
 	line,
 	pointcloud,
 )
 	classification = []
 	for point in eachrow(pointcloud)
-		if closest(pointcloud, line)[3] < point[3]
-			append!(classification, 1)
+		if closest(point, line)[3] <= point[3] # 
+			append!(classification, ["roof"])
 		else
-			append!(classification, 5)
+			append!(classification, ["floor"])
 		end
 	end
 	return classification
 end
 
-# ╔═╡ 51296756-0251-4142-8934-ddefddabf555
+# ╔═╡ 62fb9c5a-229f-4579-88f8-60602ef0d320
 classified = classify_points(xyz2, ply_points)
 
-# ╔═╡ 6d31f940-dc40-4d44-a568-5c30311000e9
-scatter(ply_points[:, 1], ply_points[:, 2], ply_points[:, 3], markersize=classified)
+# ╔═╡ 85979053-8fcb-4310-b300-9a2f60c70d24
+begin 
+	roof = Vector{Float64}()
+	a = hcat(ply_points, classified)
+	sol = a[(a[:,4] .== "floor") ,1:3]
+	roof = a[(a[:,4] .== "roof") ,1:3]
+
+	thisplot = plot(
+		camera = (α4, β4)
+	)
+	
+	if dispfloor4==true
+		scatter!(sol[:, 1], sol[:, 2], sol[:, 3],
+			markersize=2,
+			alpha=0.3,
+			label="sol",
+			color="red"
+		)
+	end
+	if disproof4==true
+		scatter!(roof[:, 1],
+			roof[:, 2],
+			roof[:, 3],
+			markersize=2,
+			alpha=0.3,
+			label="toit",
+			color="green"
+		)
+	end
+	# this makes sure that is is shown
+	thisplot
+end
 
 # ╔═╡ 650773fb-7291-4781-a636-7a5dde431988
 md"""
@@ -456,9 +499,9 @@ end
   ╠═╡ =#
 
 # ╔═╡ Cell order:
-# ╠═595c1654-b3b4-11ee-3d06-e3e426e3fbf9
+# ╟─595c1654-b3b4-11ee-3d06-e3e426e3fbf9
 # ╟─2345ae2f-aac8-4783-af52-0fe3d3372191
-# ╠═ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
+# ╟─ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
 # ╟─f0fc562a-41e5-4c06-ae6f-b7da65d1ca0b
 # ╟─01f0eebe-3ca4-4d40-bdfa-3169f163586e
 # ╟─8aaf3917-9598-42a3-9aab-4648d5450f56
@@ -469,11 +512,11 @@ end
 # ╟─39bc4e6d-9d9d-496d-87f7-2f94871fa293
 # ╟─9236ff1d-86d7-49ae-8de9-4e9ffc7aa050
 # ╟─4cd85be7-f72c-4604-b8f6-58b1e213674b
-# ╠═bf045d7e-8cc9-47d5-85fc-1b4581c1d835
+# ╟─bf045d7e-8cc9-47d5-85fc-1b4581c1d835
 # ╟─14fdecd5-68d5-4ab1-83ad-eb8f649dade1
-# ╠═51296756-0251-4142-8934-ddefddabf555
-# ╠═6d31f940-dc40-4d44-a568-5c30311000e9
-# ╠═428419ce-8b42-4e77-bf94-6a843b04f594
+# ╟─3d499a7c-f56e-4a97-9b8a-bf3718dfa50d
+# ╟─62fb9c5a-229f-4579-88f8-60602ef0d320
+# ╟─85979053-8fcb-4310-b300-9a2f60c70d24
 # ╟─650773fb-7291-4781-a636-7a5dde431988
 # ╟─5c23b1c8-560f-427e-ac50-340c09b6e96c
 # ╟─59b08d49-02c3-44e0-9ff0-f983d90e0735

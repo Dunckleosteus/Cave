@@ -167,7 +167,8 @@ md"""
 $(@bind path Select(
 	["/home/throgg/Documents/Lasalle/cavernes/caverne3.ply" => "cave 1", 
 	"/home/throgg/Documents/Lasalle/cavernes/caverne2.ply" => "cave 2",
-	"/home/throgg/Documents/Lasalle/cavernes/caverne4.ply" => "cave 3"
+	"/home/throgg/Documents/Lasalle/cavernes/caverne4.ply" => "cave 3",
+	"/home/throgg/Documents/Lasalle/cavernes/complex.ply" => "cave 4"
 ]))
 """
 
@@ -346,8 +347,15 @@ begin
 	sol = a[(a[:,4] .== "floor") ,1:3]
 	roof = a[(a[:,4] .== "roof") ,1:3]
 
+	max=maximum(ply_points);min=minimum(ply_points);
+	
 	thisplot = plot(
-		camera = (α4, β4)
+		camera = (α4, β4),normalize=true,
+		xlims=(minimum(a[:, 1]), maximum(a[:, 1])),
+		ylims=(minimum(a[:, 2]), maximum(a[:, 2])),
+		zlims= (minimum(a[:, 3]), maximum(a[:, 3])).*3,
+		#ylims=(min, max),
+		#zlims=(min, max)
 	)
 	
 	if dispfloor4==true
@@ -371,6 +379,53 @@ begin
 	# this makes sure that is is shown
 	thisplot
 end
+
+# ╔═╡ 76fcab9a-d277-44e2-ab92-8a3dc7b602f7
+md"""
+# Annexes
+"""
+
+# ╔═╡ c07ae83c-edfb-4b32-8f4e-37b7937068ac
+md"""
+## Finding shortest path
+This is an alternate way of finding a path through the points
+
+Here is the initial code in python: 
+```python
+centroids_copy = centroids
+start_point = 6
+start_point = centroids_copy[start_point]
+mylist = []
+import math
+while len(centroids_copy) > 1:
+  sorted_numbers = np.array(sorted(centroids_copy, key=lambda point:
+      math.sqrt(pow((start_point[0]-point[0]), 2) +
+                pow((start_point[1]-point[1]), 2) +
+                pow((start_point[2]-point[2]), 2)), reverse = False))
+
+  mylist.append(sorted_numbers[0])
+  start_point = sorted_numbers[0]
+  centroids_copy = [point for point in centroids_copy if not np.array_equal(point, start_point)]
+mylist.append(centroids_copy[0])
+
+
+my_list = np.array(mylist)
+fig, axs = plt.subplots(subplot_kw={'projection': '3d'})
+axs.plot(my_list[:, 0], my_list[:, 1], my_list[:, 2], c='black', marker='x', label='Centroids')
+
+for i, (x, y, z) in enumerate(my_list):
+    axs.text(x, y, z, str(i), color='red')
+
+mylist = np.array(mylist)
+
+axs.set_xlim(centroids[:, 0].min(), centroids[:, 0].max())  # Set x-axis limits
+axs.set_ylim(points['y'].min()*5, points['y'].max()*5)  # Set y-axis limits
+axs.set_zlim(0, 25)  # Set z-axis limits
+```
+"""
+
+# ╔═╡ 4a67239b-44db-4fe2-8bec-243c117ba379
+# TODO: Translate to julia
 
 # ╔═╡ 650773fb-7291-4781-a636-7a5dde431988
 md"""
@@ -504,7 +559,7 @@ end
 # ╟─ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
 # ╟─f0fc562a-41e5-4c06-ae6f-b7da65d1ca0b
 # ╟─01f0eebe-3ca4-4d40-bdfa-3169f163586e
-# ╟─8aaf3917-9598-42a3-9aab-4648d5450f56
+# ╠═8aaf3917-9598-42a3-9aab-4648d5450f56
 # ╟─5c39bc20-715e-41bf-a7c6-d66774fd92b3
 # ╟─2af27561-472c-41db-9a41-d7b6d578d8bd
 # ╟─85f10f93-4a25-4059-8254-f5b196fce1b8
@@ -512,11 +567,14 @@ end
 # ╟─39bc4e6d-9d9d-496d-87f7-2f94871fa293
 # ╟─9236ff1d-86d7-49ae-8de9-4e9ffc7aa050
 # ╟─4cd85be7-f72c-4604-b8f6-58b1e213674b
-# ╟─bf045d7e-8cc9-47d5-85fc-1b4581c1d835
+# ╠═bf045d7e-8cc9-47d5-85fc-1b4581c1d835
 # ╟─14fdecd5-68d5-4ab1-83ad-eb8f649dade1
 # ╟─3d499a7c-f56e-4a97-9b8a-bf3718dfa50d
 # ╟─62fb9c5a-229f-4579-88f8-60602ef0d320
 # ╟─85979053-8fcb-4310-b300-9a2f60c70d24
+# ╟─76fcab9a-d277-44e2-ab92-8a3dc7b602f7
+# ╟─c07ae83c-edfb-4b32-8f4e-37b7937068ac
+# ╠═4a67239b-44db-4fe2-8bec-243c117ba379
 # ╟─650773fb-7291-4781-a636-7a5dde431988
 # ╟─5c23b1c8-560f-427e-ac50-340c09b6e96c
 # ╟─59b08d49-02c3-44e0-9ff0-f983d90e0735

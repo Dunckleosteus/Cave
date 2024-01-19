@@ -23,9 +23,11 @@ begin
 	# Pkg.add("PlyIO"); 
 	# Pkg.add("Clustering"); 
 	# Pkg.status();
+	# Pkg.add("GMT");;
 	using PlutoUI; 
 	using Clustering; 
 	using PlyIO;
+	using GMT; 
 end
 
 # ╔═╡ ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
@@ -59,7 +61,7 @@ begin
 			# we keep the first point
 			proxima = ordered[1, :]
 			# plotting
-			plot!(
+			Plots.plot!(
 				[proxima[1], point[1]], 
 				[proxima[2], point[2]], 
 				[proxima[3], point[3]], 
@@ -82,6 +84,9 @@ begin
 end
 	
 end
+
+# ╔═╡ 0ee70dc3-2a84-4830-ac5a-4177af6df890
+
 
 # ╔═╡ 2345ae2f-aac8-4783-af52-0fe3d3372191
 md"""
@@ -133,7 +138,7 @@ begin
 	tfine = LinRange(1, N, resolution*N)  # interpolates more points
 	xyz = evaluate(spl,tfine)'
 	println(typeof(xyz))
-	myplot = plot(xyz[:, 1], 
+	myplot = Plots.plot(xyz[:, 1], 
 		xyz[:, 2], 
 		xyz[:, 3], 
 		label="spline",
@@ -145,8 +150,8 @@ begin
 	# find the closest point on 
 	closest(points, xyz, myplot)
 	
-	scatter!(rayo[:, 1], rayo[:, 2], rayo[:, 3], label="centroid data")
-	scatter!(points[:, 1], points[:, 2], points[:, 3], label="new points")
+	Plots.scatter!(rayo[:, 1], rayo[:, 2], rayo[:, 3], label="centroid data")
+	Plots.scatter!(points[:, 1], points[:, 2], points[:, 3], label="new points")
 end
 
 # ╔═╡ 01f0eebe-3ca4-4d40-bdfa-3169f163586e
@@ -186,7 +191,7 @@ end
 # ╔═╡ 2af27561-472c-41db-9a41-d7b6d578d8bd
 begin
 	# seperated plotting from opening data, maybe it will be faster
-	scatter(ply_points[:, 1], ply_points[:, 2], ply_points[:, 3], 
+	Plots.scatter(ply_points[:, 1], ply_points[:, 2], ply_points[:, 3], 
 		markersize = sizemarker,
 		camera = (α2, β2),
 		markeralpha=0.5
@@ -206,6 +211,9 @@ Here we group the points into clusters
 |Display point not ordered ? | $(@bind notordered CheckBox(default=true))|
 |Rotate axis 1| $(@bind αα Slider(1:1:360, default=20))|
 |Rotate axis 2| $(@bind ββ Slider(1:1:360, default=20))|
+|xscale| $(@bind xscale Slider(1:1:100, default=1))|
+|yscale| $(@bind yscale Slider(1:1:100, default=1))|
+|zscale| $(@bind zscale Slider(1:1:100, default=1))|
 """
 
 # ╔═╡ 551fa7ef-8a1c-476a-b219-293b7138938e
@@ -227,7 +235,7 @@ end
 # ╔═╡ 39bc4e6d-9d9d-496d-87f7-2f94871fa293
 begin 
 	# cluster X into 20 clusters using K-means
-	R = kmeans(ply_points', numclusters)
+	R = Clustering.kmeans(ply_points', numclusters)
 	@assert nclusters(R) == numclusters # verify the number of clusters
 
 	centers = R.centers' # transposing it
@@ -238,21 +246,25 @@ end
 
 # ╔═╡ 9236ff1d-86d7-49ae-8de9-4e9ffc7aa050
 begin 
-	scatter(centers[:, 1], centers[:, 2], centers[:, 3],label="centroids",
+	Plots.scatter(centers[:, 1], centers[:, 2], centers[:, 3],label="centroids",
 		camera = (αα, ββ),
+		#xlims=(minimum(ply_points[:, 1]), maximum(ply_points[:, 1])).*xscale,
+		#ylims=(minimum(ply_points[:, 2]), maximum(ply_points[:, 2])).*yscale,
+		#zlims= (minimum(ply_points[:, 3]), maximum(ply_points[:, 3])).*zscale,
+		c="red"
 	)
 	if notordered
-		plot!(centers[:, 1], centers[:, 2], centers[:, 3],label="not ordered")
+		Plots.plot!(centers[:, 1], centers[:, 2], centers[:, 3],label="not ordered")
 	end
 	# ask the user of the he want to display the point cloud
 	if disppointcloud
-			scatter!(ply_points[:, 1], ply_points[:, 2], ply_points[:, 3], 
+			Plots.scatter!(ply_points[:, 1], ply_points[:, 2], ply_points[:, 3], 
 				markersize = 1,
-				markeralpha=0.2,
+				markeralpha=0.1,
 				label="point cloud"
 		)
 	end
-	plot!(sorted[:, 1], sorted[:, 2], sorted[:, 3],label="sorted")
+	Plots.plot!(sorted[:, 1], sorted[:, 2], sorted[:, 3],label="sorted")
 end
 
 # ╔═╡ 4cd85be7-f72c-4604-b8f6-58b1e213674b
@@ -280,7 +292,7 @@ begin
 	tfine2 = LinRange(1, N2, resolution3*N2)  # interpolates more points
 	xyz2 = evaluate(spl2,tfine2)'
 	println(typeof(xyz2))
-	myplot2 = plot(xyz2[:, 1], 
+	myplot2 = Plots.plot(xyz2[:, 1], 
 		xyz2[:, 2], 
 		xyz2[:, 3], 
 		label="spline",
@@ -292,8 +304,8 @@ begin
 	# find the closest point on 
 	closest(points, xyz2, myplot2)
 	
-	scatter!(sorted[:, 1], sorted[:, 2], sorted[:, 3], label="centroid data")
-	scatter!(points[:, 1], points[:, 2], points[:, 3], label="new points")
+	Plots.scatter!(sorted[:, 1], sorted[:, 2], sorted[:, 3], label="centroid data")
+	Plots.scatter!(points[:, 1], points[:, 2], points[:, 3], label="new points")
 end
 
 # ╔═╡ 14fdecd5-68d5-4ab1-83ad-eb8f649dade1
@@ -349,17 +361,17 @@ begin
 
 	max=maximum(ply_points);min=minimum(ply_points);
 	
-	thisplot = plot(
+	thisplot = Plots.plot(
 		camera = (α4, β4),normalize=true,
 		xlims=(minimum(a[:, 1]), maximum(a[:, 1])),
 		ylims=(minimum(a[:, 2]), maximum(a[:, 2])),
-		zlims= (minimum(a[:, 3]), maximum(a[:, 3])).*3,
+		zlims= (minimum(a[:, 3]), maximum(a[:, 3])).*5,
 		#ylims=(min, max),
 		#zlims=(min, max)
 	)
 	
 	if dispfloor4==true
-		scatter!(sol[:, 1], sol[:, 2], sol[:, 3],
+		Plots.scatter!(sol[:, 1], sol[:, 2], sol[:, 3],
 			markersize=2,
 			alpha=0.3,
 			label="sol",
@@ -367,7 +379,7 @@ begin
 		)
 	end
 	if disproof4==true
-		scatter!(roof[:, 1],
+		Plots.scatter!(roof[:, 1],
 			roof[:, 2],
 			roof[:, 3],
 			markersize=2,
@@ -380,9 +392,23 @@ begin
 	thisplot
 end
 
+# ╔═╡ 0b82de54-d79e-4a10-9cdc-943d32b2c517
+md"""
+# Plotting a map of floor
+"""
+
+# ╔═╡ e5d36368-47f5-40ff-8d01-d1d8983354e5
+
+
 # ╔═╡ 76fcab9a-d277-44e2-ab92-8a3dc7b602f7
 md"""
 # Annexes
+"""
+
+# ╔═╡ 67aae635-359c-4770-9247-96b43baf9f70
+md"""
+## TODO make a contour plot
+This can be used to make maps using the elvation data of the tunnels
 """
 
 # ╔═╡ c07ae83c-edfb-4b32-8f4e-37b7937068ac
@@ -554,25 +580,29 @@ end
   ╠═╡ =#
 
 # ╔═╡ Cell order:
-# ╟─595c1654-b3b4-11ee-3d06-e3e426e3fbf9
+# ╠═595c1654-b3b4-11ee-3d06-e3e426e3fbf9
+# ╠═0ee70dc3-2a84-4830-ac5a-4177af6df890
 # ╟─2345ae2f-aac8-4783-af52-0fe3d3372191
 # ╟─ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
 # ╟─f0fc562a-41e5-4c06-ae6f-b7da65d1ca0b
 # ╟─01f0eebe-3ca4-4d40-bdfa-3169f163586e
-# ╠═8aaf3917-9598-42a3-9aab-4648d5450f56
+# ╟─8aaf3917-9598-42a3-9aab-4648d5450f56
 # ╟─5c39bc20-715e-41bf-a7c6-d66774fd92b3
 # ╟─2af27561-472c-41db-9a41-d7b6d578d8bd
 # ╟─85f10f93-4a25-4059-8254-f5b196fce1b8
 # ╟─551fa7ef-8a1c-476a-b219-293b7138938e
 # ╟─39bc4e6d-9d9d-496d-87f7-2f94871fa293
-# ╟─9236ff1d-86d7-49ae-8de9-4e9ffc7aa050
+# ╠═9236ff1d-86d7-49ae-8de9-4e9ffc7aa050
 # ╟─4cd85be7-f72c-4604-b8f6-58b1e213674b
-# ╠═bf045d7e-8cc9-47d5-85fc-1b4581c1d835
+# ╟─bf045d7e-8cc9-47d5-85fc-1b4581c1d835
 # ╟─14fdecd5-68d5-4ab1-83ad-eb8f649dade1
 # ╟─3d499a7c-f56e-4a97-9b8a-bf3718dfa50d
 # ╟─62fb9c5a-229f-4579-88f8-60602ef0d320
 # ╟─85979053-8fcb-4310-b300-9a2f60c70d24
+# ╟─0b82de54-d79e-4a10-9cdc-943d32b2c517
+# ╠═e5d36368-47f5-40ff-8d01-d1d8983354e5
 # ╟─76fcab9a-d277-44e2-ab92-8a3dc7b602f7
+# ╟─67aae635-359c-4770-9247-96b43baf9f70
 # ╟─c07ae83c-edfb-4b32-8f4e-37b7937068ac
 # ╠═4a67239b-44db-4fe2-8bec-243c117ba379
 # ╟─650773fb-7291-4781-a636-7a5dde431988

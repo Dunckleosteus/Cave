@@ -23,11 +23,16 @@ begin
 	# Pkg.add("PlyIO"); 
 	# Pkg.add("Clustering"); 
 	# Pkg.status();
-	# Pkg.add("GMT");;
+	# Pkg.add("GMT");
+	# Pkg.add("Tables");
+	# Pkg.add("Interpolations"); 
+	# Pkg.add("Query");
+	using Tables; 
 	using PlutoUI; 
 	using Clustering; 
 	using PlyIO;
 	using GMT; 
+	using CSV; 
 end
 
 # ╔═╡ ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
@@ -84,9 +89,6 @@ begin
 end
 	
 end
-
-# ╔═╡ 0ee70dc3-2a84-4830-ac5a-4177af6df890
-
 
 # ╔═╡ 2345ae2f-aac8-4783-af52-0fe3d3372191
 md"""
@@ -392,13 +394,118 @@ begin
 	thisplot
 end
 
+# ╔═╡ e5d36368-47f5-40ff-8d01-d1d8983354e5
+begin 
+	using DataFrames
+	
+	# Extracting columns from sol
+	col1 = Float64.(sol[:, 1])
+	col2 = Float64.(sol[:, 2])
+	col3 = Float64.(sol[:, 3])
+	df = DataFrame(:x => col1, :y => col2, :z => col3)
+	CSV.write("output.txt", df)
+	# GMT.scatter(col1, col2)
+	# scatter3([col1,col2,col3], zsize=4, marker=:cube, mc=:darkgreen, show=true)
+	# GMT.cornerplot(randn(4000,3), cmap=:viridis, truths=[0.25, 0.5, 0.75],varnames=["Ai", "Oi", "Ui"], title="Corner plot", show=true)
+
+	table_5 = gmtread("output.csv",table=true)
+	net_xy = triangulate(table_5, M=true)
+	mean_xyz = blockmean(table_5, region=(minimum(a[:, 1]), maximum(a[:, 1]),
+		minimum(a[:, 2]), maximum(a[:, 2])
+	),inc=1)
+	GMT.contour(mean_xyz, pen=:thin, mesh=(:thinnest,:dashed), labels=(dist=2.5,),show=true)
+	#GMT.plot(net_xy, lw=:thinner,show=true)
+end
+
 # ╔═╡ 0b82de54-d79e-4a10-9cdc-943d32b2c517
 md"""
 # Plotting a map of floor
 """
 
-# ╔═╡ e5d36368-47f5-40ff-8d01-d1d8983354e5
+# ╔═╡ 922f2481-752f-4ab8-babe-16a7b032ee75
+md"""
+```julia
+	using GMT
+	
+	table_5 = gmtread("@Table_5_11.txt")    # The data used in this example
+	T = gmtinfo(table_5, nearest_multiple=(dz=25, col=2))
+	makecpt(color=:jet, range=T.text[1][3:end])  # Make it also the current cmap
+	
+	subplot(grid=(2,2), limits=(0,6.5,-0.2,6.5), col_axes=(bott=true,), row_axes=(left=true,),
+	        figsize=8, margins=0.1, panel_size=(8,0), tite="Delaunay Triangulation")
+	    # First draw network and label the nodes
+	    net_xy = triangulate(table_5, M=true)
+	    plot(net_xy, lw=:thinner)
+	    plot(table_5, marker=:circle, ms=0.3, fill=:white, MarkerLine=:thinnest)
+	    text(table_5, font=6, rec_number=0)
+	
+	    # Then draw network and print the node values
+	    plot(net_xy, lw=:thinner, panel=(1,2))
+	    plot(table_5, marker=:circle, ms=0.08, fill=:black)
+	    text(table_5, zvalues=true, font=6, justify=:LM, fill=:white, pen="", clearance="1p", offset=("6p",0), noclip=true)
+	
+	    # Finally color the topography
+	    contour(table_5, pen=:thin, mesh=(:thinnest,:dashed), labels=(dist=2.5,), panel=(2,1))
+	    contour(table_5, colorize=true, panel=(2,2))
+	subplot("show")
+```
 
+"""
+
+# ╔═╡ 8a377759-81a5-4ef7-a49a-f52f36af5d76
+function minmax(a, b, x, minx, maxx)
+	z = a + ((x-minx)*(b-a))/(maxx-minx)
+	return ceil(z)
+end
+
+# ╔═╡ 6da65f2a-97b2-4795-ad04-fd3aa2fd72b0
+begin 
+	using Query; 
+	# getting extent of floor variable
+	maxₓ = maximum(sol[:, 1])
+	minₓ = minimum(sol[:, 1])
+	maxy= maximum(sol[:, 2])
+	miny = minimum(sol[:, 2])
+
+	grid_width = 100
+	grid_height = 50
+
+	# normalize each point
+	normalized_x = [minmax(0, grid_width, x, minₓ, maxₓ) for x in sol[:, 1]]
+	normalized_y = [minmax(0, grid_height, x, miny, maxy) for x in sol[:, 2]]
+
+	normalized = DataFrame(:x=>normalized_x, :y=>normalized_y, :z=>sol[:, 3])
+
+	# define an empty grid of zeros
+	grid = zeros(Float64, grid_width, grid_height)
+	# Iterate through normalized DataFrame and populate the grid
+	for x in 1:grid_width
+		for y in 1:grid_height
+			mypoints = filter(row -> row.x == x && row.y == y, normalized)
+			if isempty(mypoints) == false
+				grid[x, y] = mean(mypoints.z)
+			else
+				grid[x, y] = NaN
+			end
+		end
+	end
+end
+
+# ╔═╡ a1229048-5f3e-4965-a839-9793c3348087
+md"""
+```julia
+df2 = DataFrame(x=[1, 2, 1, 3], y=[2, 1, 2, 3], z=[10, 20, 30, 40])
+
+# Filter DataFrame where x is 1 and y is 2
+filtered_df = filter(row -> row.x == 1 && row.y == 2, df2)
+```
+"""
+
+# ╔═╡ d4072bb2-5185-4c8e-872e-63d482506c01
+size(grid)
+
+# ╔═╡ 675dd1ae-83dc-4c7d-911a-e4b2dd87ce4d
+Plots.heatmap(grid)
 
 # ╔═╡ 76fcab9a-d277-44e2-ab92-8a3dc7b602f7
 md"""
@@ -581,7 +688,6 @@ end
 
 # ╔═╡ Cell order:
 # ╠═595c1654-b3b4-11ee-3d06-e3e426e3fbf9
-# ╠═0ee70dc3-2a84-4830-ac5a-4177af6df890
 # ╟─2345ae2f-aac8-4783-af52-0fe3d3372191
 # ╟─ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
 # ╟─f0fc562a-41e5-4c06-ae6f-b7da65d1ca0b
@@ -592,7 +698,7 @@ end
 # ╟─85f10f93-4a25-4059-8254-f5b196fce1b8
 # ╟─551fa7ef-8a1c-476a-b219-293b7138938e
 # ╟─39bc4e6d-9d9d-496d-87f7-2f94871fa293
-# ╠═9236ff1d-86d7-49ae-8de9-4e9ffc7aa050
+# ╟─9236ff1d-86d7-49ae-8de9-4e9ffc7aa050
 # ╟─4cd85be7-f72c-4604-b8f6-58b1e213674b
 # ╟─bf045d7e-8cc9-47d5-85fc-1b4581c1d835
 # ╟─14fdecd5-68d5-4ab1-83ad-eb8f649dade1
@@ -600,7 +706,13 @@ end
 # ╟─62fb9c5a-229f-4579-88f8-60602ef0d320
 # ╟─85979053-8fcb-4310-b300-9a2f60c70d24
 # ╟─0b82de54-d79e-4a10-9cdc-943d32b2c517
-# ╠═e5d36368-47f5-40ff-8d01-d1d8983354e5
+# ╟─922f2481-752f-4ab8-babe-16a7b032ee75
+# ╟─e5d36368-47f5-40ff-8d01-d1d8983354e5
+# ╟─8a377759-81a5-4ef7-a49a-f52f36af5d76
+# ╟─a1229048-5f3e-4965-a839-9793c3348087
+# ╟─6da65f2a-97b2-4795-ad04-fd3aa2fd72b0
+# ╟─d4072bb2-5185-4c8e-872e-63d482506c01
+# ╟─675dd1ae-83dc-4c7d-911a-e4b2dd87ce4d
 # ╟─76fcab9a-d277-44e2-ab92-8a3dc7b602f7
 # ╟─67aae635-359c-4770-9247-96b43baf9f70
 # ╟─c07ae83c-edfb-4b32-8f4e-37b7937068ac

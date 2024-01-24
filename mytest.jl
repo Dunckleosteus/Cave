@@ -174,10 +174,10 @@ md"""
 |Marker size| $(@bind sizemarker Slider(1:1:5, default=1))|
 
 $(@bind path Select(
-	["/home/throgg/Documents/Lasalle/cavernes/caverne3.ply" => "cave 1", 
-	"/home/throgg/Documents/Lasalle/cavernes/caverne2.ply" => "cave 2",
-	"/home/throgg/Documents/Lasalle/cavernes/caverne4.ply" => "cave 3",
-	"/home/throgg/Documents/Lasalle/cavernes/complex.ply" => "cave 4"
+	["cavernes/caverne3.ply" => "cave 1", 
+	"cavernes/caverne2.ply" => "cave 2",
+	"cavernes/caverne4.ply" => "cave 3",
+	"cavernes/complex.ply" => "cave 4"
 ]))
 """
 
@@ -621,15 +621,20 @@ end
   ╠═╡ =#
 
 # ╔═╡ e42c65c0-d08a-4e9a-9981-8bd63efd76e3
+# ╠═╡ disabled = true
+#=╠═╡
 md"""
 # Creating new data 
 Now that we have defined our model we are going to use the spline to find spline(x, y)-> y for a new dataset
 """
+  ╠═╡ =#
 
 # ╔═╡ 9afbf18b-2079-4fe4-b48a-fc6a2b7ccd89
 
 
 # ╔═╡ df553e8f-7456-4acc-89e2-d780e5413b29
+# ╠═╡ disabled = true
+#=╠═╡
 md"""
 $(@bind max_x Slider(-10:1:10, default=5)) 
 $(@bind min_x Slider(-10:1:10, default=-5))
@@ -637,6 +642,7 @@ $(@bind min_x Slider(-10:1:10, default=-5))
 $(min_x) $(max_x) 
 
 """
+  ╠═╡ =#
 
 # ╔═╡ aa241f2b-93f8-4313-a503-45fe92e11f48
 begin 
@@ -685,7 +691,7 @@ end
 # ╟─a1229048-5f3e-4965-a839-9793c3348087
 # ╟─f3694af5-0e2d-47e8-987e-94d3f7737b41
 # ╟─6da65f2a-97b2-4795-ad04-fd3aa2fd72b0
-# ╠═675dd1ae-83dc-4c7d-911a-e4b2dd87ce4d
+# ╟─675dd1ae-83dc-4c7d-911a-e4b2dd87ce4d
 # ╟─dc5b81ef-b7d5-473b-8365-c280bf37b6f7
 # ╟─76fcab9a-d277-44e2-ab92-8a3dc7b602f7
 # ╟─67aae635-359c-4770-9247-96b43baf9f70

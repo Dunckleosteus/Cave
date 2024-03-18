@@ -28,6 +28,7 @@ begin
 	# Pkg.add("Interpolations"); 
 	# Pkg.add("Query");
 	# Pkg.add("AbstractPlotting");
+	# Pkg.add("Images")
 	using Tables; 
 	using PlutoUI; 
 	using Clustering; 
@@ -36,6 +37,9 @@ begin
 	using CSV; 
 	print()
 end
+
+# ╔═╡ 77c4951e-ab8b-4470-8856-6e334c8b88d7
+using Images
 
 # ╔═╡ ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
 begin
@@ -92,18 +96,194 @@ end
 	
 end
 
+# ╔═╡ ded4bc1a-4b2a-4245-940f-52c0e4860983
+html"""
+<iframe src="https://www.youtube.com/embed/watch?v=ZbuKgo3JJGY&list=TLGG2GyTBScYxnMxODAzMjAyNA;autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+"""
+
+# ╔═╡ 4a7984cd-82d4-4165-8004-0ce9c86418a9
+begin
+	lidar_image = load("images/lidar.png")
+	beauvais_gallery = load("images/beauvais_gallery.png")
+	simple_models = load("images/simple_models.png")
+	class1 = load("images/class_1.png")
+	class2 = load("images/class_2.png")
+	class3 = load("images/class_3.png")
+	random_forest = load("images/random_forest.png")
+	random_forest_result = load("images/random_forest_2.png")
+	spline_method = load("images/spline_method.png")
+	sorted_img = load("images/sorted.png")
+	unsorted_img = load("images/unsorted.png")
+	unsorted_img = imresize(unsorted_img, ratio=0.8)
+	unsortedexpl = load("images/unsorted_expl.png")
+	classification_img = load("images/classification_img.png")
+	mars = load("images/mars.png")
+	paris = load("images/paris.jpg")
+	geolab = load("images/geolab.jpg")
+	depth_map = load("images/depth_map.png")
+	orga = load("images/orga.png")
+	myfloor = load("images/floor.png")
+	mypoint_cloud = load("images/point_cloud.png")
+	mycluster = load("images/cluster.png")
+	print()
+end
+
+# ╔═╡ 6f10bdd7-1538-48eb-8768-de2b9bb6e3e7
+md"""
+# 1. Project
+
+
+- Initiated by Benoit Proudon **Enseignant-Chercheur, Géologie structurale et Tectonique synsédimentaire** in collaboration with the Géolab at UniLasalle.
+- 2 week project
+
+> How to automate the creation of underground gallery plans based on LiDAR point clouds
+
+## 1.2. Example
+- Rising temperatures increase the need for cooling in Towns
+- Paris a vast web of underground galleries that could theoretically be used for temperature control if used for aerothermy
+$paris
+
+"""
+
+# ╔═╡ fc852bd0-3eab-41d7-aaaa-6462222c1491
+md"""
+## 1.3. Géolab
+$geolab
+Innovation center at UniLasalle Beauvais that lends it's experience to aid innovation and learning. 
+
+### 1.3.1. Areas of expertise
+- 3D modelling from mountain ranges to micrometric cristals
+- Numerical modelling
+- 3D printing and scanning
+- Bio-inspired designs
+- Virtual reality
+"""
+
+# ╔═╡ dd8db273-82a1-408b-902b-b70f11dd9246
+md"""
+## 1.4. Team and organisation
+
+|Team Member|Profession|Role|
+|---|---|---|
+|Adrien Leroux Engineer|Apprentice at EDF|Manager|
+|Gaspard Serres|Apprentice at Esri|GIS expert|
+|Matthieu Paulin|Student (FISE)|Developer|
+|Léane Peyrot|Student (FISE)|Developer|
+|George Husband|Apprentice at Ginger CEBTP|Lead Developer|
+
+$orga
+
+- Short meetings every 1~2 days
+- Small, motivated team -> flexible management style
+- Regular feedback with manager to stay on course
+"""
+
+# ╔═╡ b78594cb-a297-4477-9854-1a2457b0cf5c
+md"""
+## 1.5. LIDAR
+$lidar_image
+
+- Emits a ray of light
+- Times the needed for it to be reflected back
+$$v=\frac{d}{t} \rightarrow d = t \times v \rightarrow d=\frac{t \times v}{2}$$
+- Creates a point cloud
+
+$mypoint_cloud
+"""
+
+# ╔═╡ 1967e07f-0a03-4078-a909-61022ac64c4a
+md"""
+## 1.6. Dataset
+### 1.6.1. Complex datasets
+$beauvais_gallery
+### 1.6.2. Simple models
+$simple_models
+"""
+
+# ╔═╡ 8aaf3917-9598-42a3-9aab-4648d5450f56
+md"""
+|Parameter|Slider|
+|---|----|
+|Rotate axis 1| $(@bind α2 Slider(1:1:360, default=1))|
+|Rotate axis 2| $(@bind β2 Slider(1:1:360, default=1))|
+|Marker size| $(@bind sizemarker Slider(1:1:5, default=1))|
+"""
+
+# ╔═╡ cd6d8e98-0545-4968-bbe2-9015f9b5a9a3
+md"""
+$(@bind path Select(
+	["cavernes/caverne3.ply" => "cave 1", 
+	"cavernes/caverne2.ply" => "cave 2",
+	"cavernes/caverne4.ply" => "cave 3",
+	"cavernes/complex.ply" => "cave 4"
+]))
+"""
+
+# ╔═╡ 5c39bc20-715e-41bf-a7c6-d66774fd92b3
+begin 
+	# TODO: allow the user to choose a filepath
+	# open ply files
+	# path = "/home/throgg/Documents/Lasalle/cavernes/caverne3.ply"
+	ply = load_ply(path)
+	# hcat is really cool
+	ply_points = hcat(ply["vertex"]["x"], ply["vertex"]["y"], ply["vertex"]["z"])
+	print()
+end
+
+# ╔═╡ 2af27561-472c-41db-9a41-d7b6d578d8bd
+begin
+	# seperated plotting from opening data, maybe it will be faster
+	Plots.scatter(ply_points[:, 1], ply_points[:, 2], ply_points[:, 3], 
+		markersize = sizemarker,
+		camera = (α2, β2),
+		markeralpha=0.5,
+		aspect_ratio=:equal,
+		markerstrokewidth=0.1,
+		size=(1000,1000)
+	)
+end
+
+# ╔═╡ ad077917-afa9-4d43-9439-aae4a58b015f
+md"""
+# 2. Classification & Machine Learning methods
+> Goal: Roof & floor separation
+## 2.1. K mean clustering
+$class1
+$class2
+$class3
+## 2.2.  Random forest classification
+$random_forest
+- Independant decision trees
+- 100 decision trees used in our model
+- Reduces overfitting and Bias
+$random_forest_result
+"""
+
+# ╔═╡ 81050872-ad40-45d6-aa3b-582c40a52135
+md"""
+# 3. Spline Method
+1. Cluster point in point cloud
+2. Extract centroids from clusters
+3. 3D interpolation between each centroid
+4. Compare each point from point cloud to it's projection on interpolation
+
+$spline_method
+"""
+
 # ╔═╡ 2345ae2f-aac8-4783-af52-0fe3d3372191
 md"""
-# Define test centroids dataset
+
+## Example
+
 
 Choose resolution: $(@bind resolution Slider(1:1:20, default=1))
 
----
-## Rotate plot
+
 Rotate axis 1: $(@bind α Slider(1:1:360, default=1))
+
+
 Rotate axis 2: $(@bind β Slider(1:1:360, default=1))
 
----
 
 Here is the [link](https://discourse.julialang.org/t/interpolate-a-3d-curve/56401/4) that inspired this method
 """
@@ -140,7 +320,7 @@ begin
 	
 	# 
 	tfine = LinRange(1, N, resolution*N)  # interpolates more points
-	xyz = evaluate(spl,tfine)'
+	xyz = Dierckx.evaluate(spl,tfine)'
 	println(typeof(xyz))
 	myplot = Plots.plot(xyz[:, 1], 
 		xyz[:, 2], 
@@ -158,69 +338,24 @@ begin
 	Plots.scatter!(points[:, 1], points[:, 2], points[:, 3], label="new points")
 end
 
-# ╔═╡ 01f0eebe-3ca4-4d40-bdfa-3169f163586e
-md"""
-# Testing algorithm on real data
-"""
-
-# ╔═╡ 8aaf3917-9598-42a3-9aab-4648d5450f56
-md"""
-## Opening and plotting data
-
-|Parameter|Slider|
-|---|----|
-|Rotate axis 1| $(@bind α2 Slider(1:1:360, default=1))|
-|Rotate axis 2| $(@bind β2 Slider(1:1:360, default=1))|
-|Marker size| $(@bind sizemarker Slider(1:1:5, default=1))|
-
-$(@bind path Select(
-	["cavernes/caverne3.ply" => "cave 1", 
-	"cavernes/caverne2.ply" => "cave 2",
-	"cavernes/caverne4.ply" => "cave 3",
-	"cavernes/complex.ply" => "cave 4"
-]))
-"""
-
-# ╔═╡ 5c39bc20-715e-41bf-a7c6-d66774fd92b3
-begin 
-	# TODO: allow the user to choose a filepath
-	# open ply files
-	# path = "/home/throgg/Documents/Lasalle/cavernes/caverne3.ply"
-	ply = load_ply(path)
-	# hcat is really cool
-	ply_points = hcat(ply["vertex"]["x"], ply["vertex"]["y"], ply["vertex"]["z"])
-	print()
-end
-
-# ╔═╡ 2af27561-472c-41db-9a41-d7b6d578d8bd
-begin
-	# seperated plotting from opening data, maybe it will be faster
-	Plots.scatter(ply_points[:, 1], ply_points[:, 2], ply_points[:, 3], 
-		markersize = sizemarker,
-		camera = (α2, β2),
-		markeralpha=0.5,
-		aspect_ratio=:equal,
-		markerstrokewidth=0.1,
-		size=(1000,1000)
-	)
-end
-
 # ╔═╡ 85f10f93-4a25-4059-8254-f5b196fce1b8
 md"""
-## Clustering
+## 3.1. Clustering and sorting
 Here we group the points into clusters
 
-|Parameter|Value|
+### 3.1.1. Clustering
+- Cluster using kmeans
+- Calculate the centroid for each cluster
+
+$(mycluster)
+"""
+
+# ╔═╡ 6355ca08-fde2-4894-b16e-61022972b1eb
+md"""
+### 3.1.2. Sorting
+|sorted|unsorted|
 |---|---|
-|Number of clusters|$(@bind numclusters Slider(5:1:20, default=10))|
-|Sort axis| $(@bind sortaxis Select(["x", "y", "z"]))|
-|Display point cloud ? | $(@bind disppointcloud CheckBox(default=false))|
-|Display point not ordered ? | $(@bind notordered CheckBox(default=true))|
-|Rotate axis 1| $(@bind αα Slider(1:1:360, default=20))|
-|Rotate axis 2| $(@bind ββ Slider(1:1:360, default=20))|
-|xscale| $(@bind xscale Slider(1:1:100, default=1))|
-|yscale| $(@bind yscale Slider(1:1:100, default=1))|
-|zscale| $(@bind zscale Slider(1:1:100, default=1))|
+|$sorted_img|$unsorted_img|
 """
 
 # ╔═╡ 551fa7ef-8a1c-476a-b219-293b7138938e
@@ -239,6 +374,21 @@ function sort_by(points, order)
 end
 # todo: add path sorting algorithm
 
+# ╔═╡ 0892033f-7409-455a-ab4c-b9d96be5bfe4
+md"""
+|Parameter|Value|
+|---|---|
+|Number of clusters|$(@bind numclusters Slider(5:1:20, default=10))|
+|Sort axis| $(@bind sortaxis Select(["x", "y", "z"]))|
+|Display point cloud ? | $(@bind disppointcloud CheckBox(default=false))|
+|Display point not ordered ? | $(@bind notordered CheckBox(default=true))|
+|Rotate axis 1| $(@bind αα Slider(1:1:360, default=20))|
+|Rotate axis 2| $(@bind ββ Slider(1:1:360, default=20))|
+|xscale| $(@bind xscale Slider(1:1:100, default=1))|
+|yscale| $(@bind yscale Slider(1:1:100, default=1))|
+|zscale| $(@bind zscale Slider(1:1:100, default=1))|
+"""
+
 # ╔═╡ 39bc4e6d-9d9d-496d-87f7-2f94871fa293
 begin 
 	# cluster X into 20 clusters using K-means
@@ -248,7 +398,6 @@ begin
 	centers = R.centers' # transposing it
 	sorted = sort_by(centers, sortaxis)
 	print()
-	
 end
 
 # ╔═╡ 9236ff1d-86d7-49ae-8de9-4e9ffc7aa050
@@ -276,7 +425,10 @@ end
 
 # ╔═╡ 4cd85be7-f72c-4604-b8f6-58b1e213674b
 md"""
-# Linking the points together
+## 3.2 Interpolation
+
+> A spline is a type of piecewise polynomial function. In mathematics, splines are often used in a type of interpolation known as spline interpolation.(All the science, 2023)
+
 
 |Parameter|Slider|
 |---|----|
@@ -298,7 +450,7 @@ begin
 	spl2 = ParametricSpline(1:N2, sorted') # fi
 	# 
 	tfine2 = LinRange(1, N2, resolution3*N2)  # interpolates more points
-	xyz2 = evaluate(spl2,tfine2)'
+	xyz2 = Dierckx.evaluate(spl2,tfine2)'
 	println(typeof(xyz2))
 	myplot2 = Plots.plot(xyz2[:, 1], 
 		xyz2[:, 2], 
@@ -318,27 +470,9 @@ end
 
 # ╔═╡ 14fdecd5-68d5-4ab1-83ad-eb8f649dade1
 md"""
-# Classifying points
-In the cell above we can find the closest point a the curve for the points new points that represent point from our lidar point cloud. For the sake of simplicity we say that for all point in point point cloud we have a function such as: 
+## 3.3. Classifying points
 
-> f(x, y, z) -> (x', y', z')
-
-Where:
-- x, y, z are the cartesian coordinates of our point in the point cloud
-- (x', y', z') are the cartesian coordinates of the closest point on our curve
-
-Because the centroids should be in the center of the tunnel we can affirm that:
-- if z < z' then the point belongs to the floor of the gallery
-- if z > z' then the point belongs to the roof of the gallery
-
----
-
-|Parameter|Slider|
-|---|----|
-|Rotate axis 1| $(@bind α4 Slider(1:1:360, default=1))|
-|Rotate axis 2| $(@bind β4 Slider(1:1:360, default=1))|
-|Display roof ? | $(@bind disproof4 CheckBox(default=true))|
-|Display floor ? | $(@bind dispfloor4 CheckBox(default=true))|
+$classification_img
 """
 
 # ╔═╡ 3d499a7c-f56e-4a97-9b8a-bf3718dfa50d
@@ -359,6 +493,17 @@ end
 
 # ╔═╡ 62fb9c5a-229f-4579-88f8-60602ef0d320
 classified = classify_points(xyz2, ply_points)
+
+# ╔═╡ 0c3dbc83-bdce-4ab2-8a5d-1c50960237d7
+md"""
+
+|Parameter|Slider|
+|---|----|
+|Rotate axis 1| $(@bind α4 Slider(1:1:360, default=1))|
+|Rotate axis 2| $(@bind β4 Slider(1:1:360, default=1))|
+|Display roof ? | $(@bind disproof4 CheckBox(default=true))|
+|Display floor ? | $(@bind dispfloor4 CheckBox(default=true))|
+"""
 
 # ╔═╡ 85979053-8fcb-4310-b300-9a2f60c70d24
 begin 
@@ -406,9 +551,15 @@ end
 
 # ╔═╡ 0b82de54-d79e-4a10-9cdc-943d32b2c517
 md"""
-# Plotting a map of floor
-Choose height of plot in px: 
-$(@bind taille Select(["25", "50", "75", "100", "125", "150", "175", "200"]))
+# 4. Elevation raster
+Terrain elevation is represented with pixel colour
+$mars
+Example of elevation layer from Mars (source JPL)
+
+## 4.1. Elevation raster process
+$myfloor
+$depth_map
+
 """
 
 # ╔═╡ 8a377759-81a5-4ef7-a49a-f52f36af5d76
@@ -417,21 +568,16 @@ function minmax(a, b, x, minx, maxx)
 	return ceil(z)
 end
 
-# ╔═╡ a1229048-5f3e-4965-a839-9793c3348087
-md"""
-```julia
-df2 = DataFrame(x=[1, 2, 1, 3], y=[2, 1, 2, 3], z=[10, 20, 30, 40])
-
-# Filter DataFrame where x is 1 and y is 2
-filtered_df = filter(row -> row.x == 1 && row.y == 2, df2)
-```
-"""
-
 # ╔═╡ f3694af5-0e2d-47e8-987e-94d3f7737b41
 function aspect(original_height, original_width, resized_width)::Int64
 	resized_height = (original_height/original_width) * resized_width
 	return floor(resized_height)
 end
+
+# ╔═╡ c3950a87-5ac4-480f-ad90-e28bf8dfec4b
+md"""
+Choose resolution $(@bind taille Select(["25", "50", "75", "100", "125", "150", "175", "200"]))
+"""
 
 # ╔═╡ 6da65f2a-97b2-4795-ad04-fd3aa2fd72b0
 begin 
@@ -471,16 +617,37 @@ end
 # ╔═╡ 675dd1ae-83dc-4c7d-911a-e4b2dd87ce4d
 Plots.heatmap(grid, aspect_ratio=:equal)
 
-# ╔═╡ dc5b81ef-b7d5-473b-8365-c280bf37b6f7
-begin 
-	count = 0
-	for x in 1:10
-		for y in 1:20
-			count += 1
-		end
-	end
-	print(count)
-end
+# ╔═╡ 0400ffa3-cb50-42fa-bc60-099dac6f1771
+md"""
+# Conclusion
+- Depth map creation
+- Open sourche code
+
+---
+
+- Extract walls
+- Depth map of roof and walls
+- Create user interface
+- Optimizations
+- Topology map creation
+"""
+
+# ╔═╡ 5f15e1ba-146d-409d-92fa-c512c685d1b3
+md"""
+# Litterature
+
+All the science. 2023. What is a spline ?
+Link : https://www.allthescience.org/what-is-a-spline.htm
+
+BRGM. 2021. Modélisation 3D des cavités souterrainesLink : https://www.youtube.com/watch?v=hDvbweCH2OA
+
+International Business Machines Corporation. 2023. Qu'est-ce que l'algorithme de forêt aléatoire (random forest) ?
+Link : https://www.ibm.com/fr-fr/topics/random-forest
+
+KHAN M. et al. 2021. Automated prediction of Good Dictionary EXamples (GDEX): a comprehensive experiment with distant supervision, machine learning, and word embedding-based deep learning techniques. Complexity, vol. 2021, p. 1-18.
+
+Open3D, 2023. Open3D 0.18.0 documentation in open3D. Site d’Open3D. Disponible sur < https://www.open3d.org/docs/release/index.html>
+"""
 
 # ╔═╡ 76fcab9a-d277-44e2-ab92-8a3dc7b602f7
 md"""
@@ -645,11 +812,14 @@ $(min_x) $(max_x)
   ╠═╡ =#
 
 # ╔═╡ aa241f2b-93f8-4313-a503-45fe92e11f48
+# ╠═╡ disabled = true
+#=╠═╡
 begin 
 	x_new = LinRange(minimum(x), maximum(x), 250)
 	y_new = LinRange(minimum(x), maximum(x), 250)
 	z_predicted = evaluate(myspline, x_new, y_new)
 end
+  ╠═╡ =#
 
 # ╔═╡ 59865bff-ca3f-4212-9e8e-9e9ec0de0e57
 md"""
@@ -669,30 +839,44 @@ end
 
 # ╔═╡ Cell order:
 # ╟─595c1654-b3b4-11ee-3d06-e3e426e3fbf9
+# ╟─6f10bdd7-1538-48eb-8768-de2b9bb6e3e7
+# ╟─fc852bd0-3eab-41d7-aaaa-6462222c1491
+# ╟─ded4bc1a-4b2a-4245-940f-52c0e4860983
+# ╟─dd8db273-82a1-408b-902b-b70f11dd9246
+# ╟─77c4951e-ab8b-4470-8856-6e334c8b88d7
+# ╠═4a7984cd-82d4-4165-8004-0ce9c86418a9
+# ╠═b78594cb-a297-4477-9854-1a2457b0cf5c
+# ╟─1967e07f-0a03-4078-a909-61022ac64c4a
+# ╟─8aaf3917-9598-42a3-9aab-4648d5450f56
+# ╟─cd6d8e98-0545-4968-bbe2-9015f9b5a9a3
+# ╟─5c39bc20-715e-41bf-a7c6-d66774fd92b3
+# ╟─2af27561-472c-41db-9a41-d7b6d578d8bd
+# ╟─ad077917-afa9-4d43-9439-aae4a58b015f
+# ╟─81050872-ad40-45d6-aa3b-582c40a52135
 # ╟─2345ae2f-aac8-4783-af52-0fe3d3372191
 # ╟─ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
 # ╟─f0fc562a-41e5-4c06-ae6f-b7da65d1ca0b
-# ╟─01f0eebe-3ca4-4d40-bdfa-3169f163586e
-# ╟─8aaf3917-9598-42a3-9aab-4648d5450f56
-# ╟─5c39bc20-715e-41bf-a7c6-d66774fd92b3
-# ╟─2af27561-472c-41db-9a41-d7b6d578d8bd
 # ╟─85f10f93-4a25-4059-8254-f5b196fce1b8
+# ╟─6355ca08-fde2-4894-b16e-61022972b1eb
 # ╟─551fa7ef-8a1c-476a-b219-293b7138938e
 # ╟─39bc4e6d-9d9d-496d-87f7-2f94871fa293
 # ╟─9236ff1d-86d7-49ae-8de9-4e9ffc7aa050
+# ╟─0892033f-7409-455a-ab4c-b9d96be5bfe4
 # ╟─4cd85be7-f72c-4604-b8f6-58b1e213674b
 # ╟─bf045d7e-8cc9-47d5-85fc-1b4581c1d835
 # ╟─14fdecd5-68d5-4ab1-83ad-eb8f649dade1
 # ╟─3d499a7c-f56e-4a97-9b8a-bf3718dfa50d
 # ╟─62fb9c5a-229f-4579-88f8-60602ef0d320
 # ╟─85979053-8fcb-4310-b300-9a2f60c70d24
+# ╟─0c3dbc83-bdce-4ab2-8a5d-1c50960237d7
 # ╟─0b82de54-d79e-4a10-9cdc-943d32b2c517
 # ╟─8a377759-81a5-4ef7-a49a-f52f36af5d76
-# ╟─a1229048-5f3e-4965-a839-9793c3348087
 # ╟─f3694af5-0e2d-47e8-987e-94d3f7737b41
-# ╟─6da65f2a-97b2-4795-ad04-fd3aa2fd72b0
+# ╠═6da65f2a-97b2-4795-ad04-fd3aa2fd72b0
 # ╟─675dd1ae-83dc-4c7d-911a-e4b2dd87ce4d
-# ╟─dc5b81ef-b7d5-473b-8365-c280bf37b6f7
+# ╟─c3950a87-5ac4-480f-ad90-e28bf8dfec4b
+# ╟─0400ffa3-cb50-42fa-bc60-099dac6f1771
+# ╟─5f15e1ba-146d-409d-92fa-c512c685d1b3
 # ╟─76fcab9a-d277-44e2-ab92-8a3dc7b602f7
 # ╟─67aae635-359c-4770-9247-96b43baf9f70
 # ╟─c07ae83c-edfb-4b32-8f4e-37b7937068ac

@@ -96,6 +96,16 @@ end
 	
 end
 
+# ╔═╡ da75109a-939a-4367-8894-bb4f6e16bfe0
+md"""
+General structure:
+1. Project presentation
+2. Classification and Machine Learning methods
+3. Spline method
+4. Elevation raster
+5. Conclusion
+"""
+
 # ╔═╡ ded4bc1a-4b2a-4245-940f-52c0e4860983
 html"""
 <iframe src="https://www.youtube.com/embed/watch?v=ZbuKgo3JJGY&list=TLGG2GyTBScYxnMxODAzMjAyNA;autoplay=1&mute=1" width="560" height="315" frameborder="0" allowfullscreen></iframe>
@@ -125,6 +135,7 @@ begin
 	myfloor = load("images/floor.png")
 	mypoint_cloud = load("images/point_cloud.png")
 	mycluster = load("images/cluster.png")
+	small_lidar = load("images/small_lidar.png")
 	print()
 end
 
@@ -183,8 +194,6 @@ md"""
 ## 1.5. LIDAR
 $lidar_image
 
-- Emits a ray of light
-- Times the needed for it to be reflected back
 $$v=\frac{d}{t} \rightarrow d = t \times v \rightarrow d=\frac{t \times v}{2}$$
 - Creates a point cloud
 
@@ -262,10 +271,10 @@ $random_forest_result
 # ╔═╡ 81050872-ad40-45d6-aa3b-582c40a52135
 md"""
 # 3. Spline Method
-1. Cluster point in point cloud
+1. Cluster
 2. Extract centroids from clusters
-3. 3D interpolation between each centroid
-4. Compare each point from point cloud to it's projection on interpolation
+3. 3D interpolation between centroid
+4. Compare each point from point cloud to it's projection on interpolated line
 
 $spline_method
 """
@@ -621,7 +630,7 @@ Plots.heatmap(grid, aspect_ratio=:equal)
 md"""
 # Conclusion
 - Depth map creation
-- Open sourche code
+- Open source code
 
 ---
 
@@ -630,6 +639,8 @@ md"""
 - Create user interface
 - Optimizations
 - Topology map creation
+
+$small_lidar
 """
 
 # ╔═╡ 5f15e1ba-146d-409d-92fa-c512c685d1b3
@@ -839,13 +850,14 @@ end
 
 # ╔═╡ Cell order:
 # ╟─595c1654-b3b4-11ee-3d06-e3e426e3fbf9
+# ╟─da75109a-939a-4367-8894-bb4f6e16bfe0
 # ╟─6f10bdd7-1538-48eb-8768-de2b9bb6e3e7
 # ╟─fc852bd0-3eab-41d7-aaaa-6462222c1491
 # ╟─ded4bc1a-4b2a-4245-940f-52c0e4860983
 # ╟─dd8db273-82a1-408b-902b-b70f11dd9246
 # ╟─77c4951e-ab8b-4470-8856-6e334c8b88d7
-# ╠═4a7984cd-82d4-4165-8004-0ce9c86418a9
-# ╠═b78594cb-a297-4477-9854-1a2457b0cf5c
+# ╟─4a7984cd-82d4-4165-8004-0ce9c86418a9
+# ╟─b78594cb-a297-4477-9854-1a2457b0cf5c
 # ╟─1967e07f-0a03-4078-a909-61022ac64c4a
 # ╟─8aaf3917-9598-42a3-9aab-4648d5450f56
 # ╟─cd6d8e98-0545-4968-bbe2-9015f9b5a9a3
@@ -856,7 +868,7 @@ end
 # ╟─2345ae2f-aac8-4783-af52-0fe3d3372191
 # ╟─ebd5c24b-4afe-44f1-ac7c-36ca8dd99b71
 # ╟─f0fc562a-41e5-4c06-ae6f-b7da65d1ca0b
-# ╟─85f10f93-4a25-4059-8254-f5b196fce1b8
+# ╠═85f10f93-4a25-4059-8254-f5b196fce1b8
 # ╟─6355ca08-fde2-4894-b16e-61022972b1eb
 # ╟─551fa7ef-8a1c-476a-b219-293b7138938e
 # ╟─39bc4e6d-9d9d-496d-87f7-2f94871fa293
